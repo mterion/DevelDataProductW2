@@ -1,0 +1,118 @@
+---
+title: "Data science / Devel. Data products / W2"
+author: "Manu"
+date: "15/11/2020"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(leaflet)
+library(shiny)
+library(dplyr)
+library(tidyr)
+```
+
+```{r data, echo=FALSE}
+rm(list = ls())
+path <- ("C:/Users/cliva/OneDrive - Analytic Base/personalFilesManu/data_science/coursera_courses/data_scientist/9_developping_dataProducts/assignment/data/country-capitals.csv")
+
+df <- read.csv(path, stringsAsFactors = FALSE)
+```
+
+Here is the assignment for the second week of the course "Developin Data Products". The goal is to create a web page using R Markdown that features a map created with Leaflet.
+
+
+## Map
+The interactive map will focuse on european capitals. Coordinates data were taken from the following website: [Techslides: Data, Maps, Usability and Performances](http://techslides.com/list-of-countries-and-capitals)
+
+
+```{r eruptions, echo=FALSE}
+
+ui <- fluidPage(
+
+    # Application title
+    titlePanel("Capitals"),
+
+    sidebarLayout(
+        sidebarPanel(
+            radioButtons("radio", h3("Choose continent:"),
+                        choices = list(
+                          "Africa" = 1, 
+                          "Antarctica" = 2,
+                          "Asia" = 3,
+                          "Australia" = 4,
+                          "Central America" = 5, 
+                          "Europe" = 6,
+                          "North America" = 7,
+                          "South America" = 8
+                          ),selected = 6)
+        ),
+
+        mainPanel(
+            h3("Map"),
+            leafletOutput("mapCont"), 
+             width = 8
+        )
+    )
+)
+
+server <- function(input, output) {
+        
+        # Create a function for filtering of the data frame
+        filterContinent <- function(continent){
+                contCapDf <- df %>%
+                    filter(ContinentName == continent) %>%
+                    rename(lat = CapitalLatitude, long = CapitalLongitude) %>%
+                    mutate (lat = as.numeric(lat))
+                return(contCapDf)
+        }
+        
+        # Get the input from the user
+        continent <- reactive({input$radio})
+
+        output$mapCont <- renderLeaflet({
+            
+          # Data -> adjust the output according to selection
+                # This need to be donw with the render environment and the call is a fun : continent()
+          if(continent() == 1){
+              ContCapDf <- filterContinent("Africa")    
+          }
+          if(continent() == 2){
+              ContCapDf <- filterContinent("Antarctica")    
+          }
+          if(continent() == 3){
+              ContCapDf <- filterContinent("Asia")    
+          }
+          if(continent() == 4){
+              ContCapDf <- filterContinent("Australia")    
+          }
+          if(continent() == 5){
+              ContCapDf <- filterContinent("Central America")    
+          }
+          if(continent() == 6){
+              ContCapDf <- filterContinent("Europe")    
+          }
+          if(continent() == 7){
+              ContCapDf <- filterContinent("North America")    
+          }
+          if(continent() == 8){
+              ContCapDf <- filterContinent("South America")    
+          }
+        
+        # Map the selection   
+        ContCapDf %>%
+          leaflet(options = leafletOptions(minZoom = 0, maxZoom = 18)) %>%
+          addTiles() %>%
+          addMarkers(clusterOptions = markerClusterOptions(), 
+          popup = paste(ContCapDf$CountryCode, " / ", ContCapDf$CapitalName))
+      
+    })
+    }
+
+shinyApp(ui, server, options = list(height = 800)) # options used to adjust the size of the embedded shiny app in rmd
+
+```
+
+
