@@ -44,7 +44,7 @@ ContCapDf <- filterContinent("Europe")
         
         # Map the selection   
         map <- ContCapDf %>%
-          leaflet(options = leafletOptions(minZoom = 0, maxZoom = 18)) %>%
+          leaflet() %>%
           addTiles() %>%
           addMarkers(clusterOptions = markerClusterOptions(), 
           popup = paste(ContCapDf$CountryCode, " / ", ContCapDf$CapitalName))
