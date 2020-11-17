@@ -1,0 +1,55 @@
+---
+title: "Developping Data Product W2 -> static version"
+author: "Manu"
+date: "17/11/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(leaflet)
+library(shiny)
+library(dplyr)
+library(tidyr)
+```
+
+## Introduction
+
+Here is the assignment for the second week of the course "Developin Data Products". The goal is to create a web page using R Markdown that features a map created with Leaflet. The interactive map will focuse on european capitals. Coordinates data were taken from the following website: [Techslides: Data, Maps, Usability and Performances](http://techslides.com/list-of-countries-and-capitals)
+
+
+
+```{r data, message = FALSE, echo=FALSE, warning=FALSE}
+rm(list = ls())
+path <- ("C:/Users/cliva/OneDrive - Analytic Base/personalFilesManu/data_science/coursera_courses/data_scientist/9_developping_dataProducts/assignment/data/country-capitals.csv")
+
+df <- read.csv(path, stringsAsFactors = FALSE)
+```
+
+
+```{r eruptions, message = FALSE, echo=FALSE, warning=FALSE}
+
+
+        
+# Create a function for filtering of the data frame
+filterContinent <- function(continent){
+        contCapDf <- df %>%
+            filter(ContinentName == continent) %>%
+            rename(lat = CapitalLatitude, long = CapitalLongitude) %>%
+            mutate (lat = as.numeric(lat))
+        return(contCapDf)
+}
+        
+ContCapDf <- filterContinent("Europe")
+
+        
+        # Map the selection   
+        ContCapDf %>%
+          leaflet(options = leafletOptions(minZoom = 0, maxZoom = 18)) %>%
+          addTiles() %>%
+          addMarkers(clusterOptions = markerClusterOptions(), 
+          popup = paste(ContCapDf$CountryCode, " / ", ContCapDf$CapitalName))
+      
+```
+
+
