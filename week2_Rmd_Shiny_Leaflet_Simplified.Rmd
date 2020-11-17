@@ -8,7 +8,6 @@ output: html_document
 ```{r setup, include=FALSE, echo = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(leaflet)
-library(shiny)
 library(dplyr)
 library(tidyr)
 ```
@@ -44,11 +43,12 @@ ContCapDf <- filterContinent("Europe")
 
         
         # Map the selection   
-        ContCapDf %>%
+        map <- ContCapDf %>%
           leaflet(options = leafletOptions(minZoom = 0, maxZoom = 18)) %>%
           addTiles() %>%
           addMarkers(clusterOptions = markerClusterOptions(), 
           popup = paste(ContCapDf$CountryCode, " / ", ContCapDf$CapitalName))
+        map
       
 ```
 
